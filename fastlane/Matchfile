@@ -1,0 +1,6 @@
+git_url("") # Set this to your private match repo, e.g. git@github.com:yourorg/certs-private.git
+app_identifier(["com.medmanager.app"]) # App identifiers
+username(ENV['APPLE_ID'] || 'you@example.com')
+team_id(ENV['TEAM_ID'])
+storage_mode("git")
+readonly(false)

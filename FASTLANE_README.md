@@ -13,3 +13,11 @@ base64 -i Certificate.p12 > certificate.p12.base64
 base64 -i profile.mobileprovision > profile.mobileprovision.base64
 
 Copy contents into the GitHub secret values.
+
+Using Fastlane Match (recommended for CI):
+
+- MATCH_GIT_URL: git URL for your private repo that stores certificates (e.g. git@github.com:yourorg/certs-private.git)
+- MATCH_PASSWORD: passphrase used by match to encrypt the repo
+- MATCH_TYPE: certificate type to fetch (appstore, development, adhoc)
+
+If you configure `MATCH_GIT_URL` and `MATCH_PASSWORD` in repository secrets, the `ios-fastlane.yml` workflow will use `fastlane match_and_build` to fetch certificates and provisioning profiles automatically.

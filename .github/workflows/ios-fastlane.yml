@@ -61,8 +61,17 @@ jobs:
         APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
         EXPORT_METHOD: ${{ secrets.EXPORT_METHOD }}
         APPLE_ID: ${{ secrets.APPLE_ID }}
+        MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+        MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        MATCH_TYPE: ${{ secrets.MATCH_TYPE }}
       run: |
-        bundle exec fastlane ios build
+        if [ -n "$MATCH_GIT_URL" ]; then
+          echo "Using match to fetch certs from private repo"
+          bundle exec fastlane ios match_and_build
+        else
+          echo "No MATCH_GIT_URL set — building using provided p12/profile if any"
+          bundle exec fastlane ios build
+        fi
 
     - name: Upload IPA
       uses: actions/upload-artifact@v4
