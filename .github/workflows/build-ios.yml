@@ -11,16 +11,16 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
 
     - name: Install dependencies
-      run: npm install
+      run: npm ci
 
     - name: Build web app
       run: npm run build
@@ -28,10 +28,15 @@ jobs:
     - name: Setup Capacitor
       run: |
         npm install @capacitor/core @capacitor/cli @capacitor/ios
-        npx cap init "MedManager" "com.medmanager.app"
+        npx cap init "MedManager" "com.medmanager.app" --web-dir=www
+        
+    - name: Copy web assets
+      run: |
         mkdir -p www
-        cp -r dist/* www/ || cp -r .vite/renderer/* www/
-        npx cap add ios
+        cp -r dist/* www/ 2>/dev/null || cp -r .vite/renderer/* www/ 2>/dev/null || echo "Using existing www folder"
+
+    - name: Add iOS platform
+      run: npx cap add ios
 
     - name: Sync Capacitor
       run: npx cap sync ios
@@ -44,11 +49,21 @@ jobs:
     - name: Build iOS app
       run: |
         cd ios/App
-        xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -archivePath App.xcarchive archive
-        xcodebuild -exportArchive -archivePath App.xcarchive -exportPath ./export -exportOptionsPlist ../../.github/ExportOptions.plist
+        xcodebuild -workspace App.xcworkspace -scheme App -configuration Release clean build CODE_SIGNING_ALLOWED=NO
+
+    - name: Archive iOS app
+      run: |
+        cd ios/App
+        xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -archivePath App.xcarchive archive CODE_SIGNING_ALLOWED=NO
+
+    - name: Export iOS app
+      run: |
+        cd ios/App
+        mkdir -p export
+        cp -r App.xcarchive export/
 
     - name: Upload iOS app
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: MedManager-iOS
-        path: ios/App/export/*.ipa
+        path: ios/App/export/
