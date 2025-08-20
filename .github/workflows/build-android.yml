@@ -1,0 +1,85 @@
+name: Build Android App
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Install dependencies
+      run: npm install --legacy-peer-deps
+
+    - name: Build web app
+      run: npm run build
+
+    - name: Install Capacitor
+      run: |
+        npm install @capacitor/core @capacitor/cli @capacitor/android
+
+    - name: Initialize Capacitor
+      run: |
+        npx cap init "MedManager" "com.medmanager.app" --web-dir=www
+
+    - name: Prepare web directory
+      run: |
+        mkdir -p www
+        if [ -d "dist" ]; then
+          cp -r dist/* www/
+        elif [ -d ".vite/renderer" ]; then
+          cp -r .vite/renderer/* www/
+        fi
+        echo "Contents of www:"
+        ls -la www/
+
+    - name: Add Android platform
+      run: npx cap add android
+
+    - name: Sync to Android
+      run: npx cap sync android
+
+    - name: Grant execute permission
+      run: chmod +x android/gradlew
+
+    - name: Build Android APK
+      run: |
+        cd android
+        ./gradlew assembleDebug
+
+    - name: Sign APK (optional)
+      run: |
+        cd android
+        ./gradlew assembleRelease || echo "Release build failed, using debug APK"
+
+    - name: Find APK files
+      run: |
+        find android -name "*.apk" -type f
+        mkdir -p android-output
+        cp android/app/build/outputs/apk/debug/*.apk android-output/ 2>/dev/null || echo "No debug APK"
+        cp android/app/build/outputs/apk/release/*.apk android-output/ 2>/dev/null || echo "No release APK"
+
+    - name: Upload Android APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: MedManager-Android
+        path: android-output/*.apk
