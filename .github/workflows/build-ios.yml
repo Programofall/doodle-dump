@@ -6,9 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-ios:
-    runs-on: macos-latest
-
+  build-web:
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -17,53 +16,83 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
 
     - name: Install dependencies
-      run: npm ci
+      run: npm install --legacy-peer-deps
 
     - name: Build web app
       run: npm run build
 
-    - name: Setup Capacitor
+    - name: Upload web build
+      uses: actions/upload-artifact@v4
+      with:
+        name: web-build
+        path: |
+          dist/
+          www/
+          .vite/
+
+  build-ios:
+    needs: build-web
+    runs-on: macos-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download web build
+      uses: actions/download-artifact@v4
+      with:
+        name: web-build
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install Capacitor
       run: |
-        npm install @capacitor/core @capacitor/cli @capacitor/ios
+        npm install -g @capacitor/core @capacitor/cli @capacitor/ios
+
+    - name: Initialize Capacitor
+      run: |
         npx cap init "MedManager" "com.medmanager.app" --web-dir=www
-        
-    - name: Copy web assets
+
+    - name: Prepare web directory
       run: |
         mkdir -p www
-        cp -r dist/* www/ 2>/dev/null || cp -r .vite/renderer/* www/ 2>/dev/null || echo "Using existing www folder"
+        if [ -d "dist" ]; then
+          cp -r dist/* www/
+        elif [ -d ".vite/renderer" ]; then
+          cp -r .vite/renderer/* www/
+        fi
+        ls -la www/
 
     - name: Add iOS platform
       run: npx cap add ios
 
-    - name: Sync Capacitor
+    - name: Sync to iOS
       run: npx cap sync ios
 
-    - name: Setup Xcode
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: latest-stable
+    - name: List iOS files
+      run: |
+        ls -la ios/
+        ls -la ios/App/
 
-    - name: Build iOS app
+    - name: Build iOS (without signing)
       run: |
         cd ios/App
-        xcodebuild -workspace App.xcworkspace -scheme App -configuration Release clean build CODE_SIGNING_ALLOWED=NO
+        xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug -destination generic/platform=iOS build CODE_SIGNING_ALLOWED=NO
 
-    - name: Archive iOS app
+    - name: Create iOS bundle
       run: |
         cd ios/App
-        xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -archivePath App.xcarchive archive CODE_SIGNING_ALLOWED=NO
+        mkdir -p ../../ios-output
+        cp -r build ../../ios-output/ 2>/dev/null || echo "No build folder"
+        cp -r App.xcworkspace ../../ios-output/
+        cp -r App.xcodeproj ../../ios-output/ 2>/dev/null || echo "No xcodeproj"
 
-    - name: Export iOS app
-      run: |
-        cd ios/App
-        mkdir -p export
-        cp -r App.xcarchive export/
-
-    - name: Upload iOS app
+    - name: Upload iOS project
       uses: actions/upload-artifact@v4
       with:
-        name: MedManager-iOS
-        path: ios/App/export/
+        name: MedManager-iOS-Project
+        path: ios-output/
