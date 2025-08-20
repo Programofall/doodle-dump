@@ -1,0 +1,2 @@
+apple_id("your-apple-id@example.com")
+app_identifier("com.medmanager.app") # The bundle identifier of your app
