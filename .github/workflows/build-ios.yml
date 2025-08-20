@@ -1,0 +1,54 @@
+name: Build iOS App
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build web app
+      run: npm run build
+
+    - name: Setup Capacitor
+      run: |
+        npm install @capacitor/core @capacitor/cli @capacitor/ios
+        npx cap init "MedManager" "com.medmanager.app"
+        mkdir -p www
+        cp -r dist/* www/ || cp -r .vite/renderer/* www/
+        npx cap add ios
+
+    - name: Sync Capacitor
+      run: npx cap sync ios
+
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+
+    - name: Build iOS app
+      run: |
+        cd ios/App
+        xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -archivePath App.xcarchive archive
+        xcodebuild -exportArchive -archivePath App.xcarchive -exportPath ./export -exportOptionsPlist ../../.github/ExportOptions.plist
+
+    - name: Upload iOS app
+      uses: actions/upload-artifact@v3
+      with:
+        name: MedManager-iOS
+        path: ios/App/export/*.ipa

@@ -1,0 +1,51 @@
+{
+  "name": "med-manager",
+  "productName": "Med-Manager",
+  "version": "1.0.0",
+  "description": "My Electron application description",
+  "main": ".vite/build/main.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "dev": "electron-forge start",
+    "prebuild": "rimraf .vite",
+    "build": "vite build",
+    "postbuild": "node copy-assets.js",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "echo \"No linting configured\""
+  },
+  "keywords": [],
+  "author": "markc",
+  "license": "MIT",
+  "devDependencies": {
+    "@electron-forge/cli": "^7.8.3",
+    "@electron-forge/maker-deb": "^7.8.3",
+    "@electron-forge/maker-rpm": "^7.8.3",
+    "@electron-forge/maker-squirrel": "^7.8.3",
+    "@electron-forge/maker-zip": "^7.8.3",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.8.1",
+    "@electron-forge/plugin-fuses": "^7.8.1",
+    "@electron-forge/plugin-vite": "^7.8.3",
+    "@electron/fuses": "^1.8.0",
+    "electron": "^37.3.1",
+    "rimraf": "^6.0.1",
+    "vite": "^5.4.19",
+    "vite-plugin-monaco-editor": "^1.1.0"
+  },
+  "dependencies": {
+    "@capacitor/cli": "^8.0.0-alpha.1",
+    "@capacitor/core": "^8.0.0-alpha.1",
+    "@capacitor/ios": "^8.0.0-alpha.1",
+    "@expo/cli": "^0.24.20",
+    "@google/generative-ai": "^0.24.1",
+    "@zoom/meetingsdk": "^3.13.2",
+    "electron-squirrel-startup": "^1.0.1",
+    "electron-store": "^8.1.0",
+    "expo": "^53.0.20",
+    "monaco-editor": "^0.52.2",
+    "nodemailer": "^7.0.5",
+    "store": "^2.0.12",
+    "uuid": "^9.0.1"
+  }
+}

@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Medical Manager</title>
+    <style>
+    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: sans-serif; background-color: #f5e6e0; color: #000000; font-size: 1.013em;}
+    html { transition: font-size 0.2s; }
+        #app-container { display: flex; flex-direction: column; height: 100vh; }
+        #controls { 
+            padding: 11.058px; 
+            background: #e8d6d0; 
+            border-bottom: 1px solid #d4b5a9; 
+            display: flex; 
+            gap: 11.058px; 
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+    .form-input { flex-grow: 1; padding: 9.215px; background-color: #f5f5f5; border: 1px solid #d4b5a9; color: #000000; border-radius: 4.6075px; font-size: 1.013em; }
+        .btn { 
+            padding: 7.372px 14.744px; 
+            border: 1px solid #d4b5a9; 
+            background-color: #f5f5f5 !important; 
+            color: #000000; 
+            cursor: pointer; 
+            position: relative; /* Needed for the pseudo-element */
+            overflow: hidden;   /* Keep the progress bar contained */
+            transition: background-color 0.3s, transform 0.1s;
+            font-size: 1.013em;
+            border-radius: 4.6075px;
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .btn:hover { background-color: #e8d6d0 !important; }
+        .btn:disabled {
+            color: #888;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Form Styling */
+        .form-section {
+            margin-bottom: 12px;
+            padding: 8px;
+            background: #f0e2dc;
+            border-radius: 8.2935px;
+            box-shadow: 0 1.843px 4.6075px rgba(172, 161, 161, 0.708);
+        }
+
+        .form-section h3 {
+            margin: 0 0 8px 0;
+            color: #000000;
+            border-bottom: 1px solid #d4b5a9;
+            padding-bottom: 4px;
+            font-size: 1.1058em;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16.587px;
+        }
+
+        .form-group {
+            margin-bottom: 16.587px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label, .input-label {
+            display: block;
+            margin-bottom: 5.529px;
+            color: #5d4037;
+            font-size: 0.921em;
+            font-weight: 500;
+        }
+
+        /* Medical Records Form Container */
+        #medical-form-container { 
+            flex: 1; 
+            padding: 22.116px;
+            overflow-y: auto;
+            max-height: calc(100vh - 120px);
+            margin-bottom: 20px;
+            padding-bottom: 100px;
+        }
+
+        /* Calendar Section */
+        .calendar-container {
+            margin: 16.587px 0;
+            padding: 16.587px;
+            background: #f0e2dc;
+            border-radius: 4.6075px;
+            min-height: 304.095px;
+        }
+
+        .scheduler-form {
+            margin-top: 8px;
+            padding: 8px;
+            background: #f0e2dc;
+            border-radius: 4.6075px;
+        }
+
+        /* Enhanced Buttons */
+        .btn-primary {
+            background-color: #f5f5f5 !important;
+            border: 1px solid #d4b5a9 !important;
+            color: #000000 !important;
+        }
+
+        .btn-primary:hover {
+            background-color: #e8d6d0 !important;
+        }
+
+        /* Form Controls Enhancement */
+        .form-input {
+            width: 100%;
+            padding: 9.215px;
+            background-color: #f5f5f5 !important;
+            border: 1px solid #d4b5a9 !important;
+            color: #000000 !important;
+            border-radius: 4.6075px;
+            font-size: 1.013em;
+            overflow-x: auto;
+        }
+
+        select.form-input {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 9.215px center;
+            background-size: 1.013em;
+            padding-right: 29.488px;
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 60.819px;
+            overflow-y: auto;
+        }
+
+        input[type="file"].form-input {
+            padding: 7.372px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        #ai-assistant-container {
+            background: #f0e2dc;
+            border-bottom: 1px solid #d4b5a9;
+            padding: 10px 16px;
+            max-width: 700px;
+            margin: 0 auto 10px auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        #ai-input {
+            flex-grow: 1;
+            padding: 9.215px;
+            background-color: #f5f5f5;
+            border: 1px solid #d4b5a9;
+            color: #000000;
+            border-radius: 4.6075px;
+            font-size: 1.013em;
+            min-width: 180px;
+            max-width: 400px;
+        }
+
+        #zoom-meeting-container {
+            width: 100%;
+            height: 100%;
+            background: #f5e6e0;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0;
+            background-color: #374148;
+            transition: width 0.3s ease-out, background-color 0.3s;
+        }
+        .btn.loading::before {
+            width: 95%;
+            transition: width 15s ease-in;
+        }
+        .btn.success::before {
+            width: 100%;
+            background-color: #2e4533;
+        }
+        .btn > span {
+            position: relative;
+        }
+    #status-message { margin-left: auto; font-style: italic; color: #888; }
+    #main-content { display: flex; flex: 1; }
+    #video-container { 
+        flex: 1; 
+        border-right: 1px solid #d4b5a9; 
+        background-color: #f5e6e0;
+        display: flex;
+        flex-direction: column;
+    }
+    #editor-container { flex: 1; }
+        /* Center API key box, menu, and button in one line at the top */
+        #controls .api-settings {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 auto;
+        }
+        #controls .api-settings select,
+        #controls .api-settings input,
+        #controls .api-settings button {
+            width: auto;
+            min-width: 120px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+        <div id="ai-toolkit-top" style="background:#f0e2dc; border-bottom:1px solid #d4b5a9; padding:14px 0 10px 0; display:flex; align-items:center; justify-content:center; gap:12px; position:relative;">
+            <span style="font-weight:bold; color:#364448; font-size:1.15em;">AI Agent</span>
+            <input type="text" id="ai-toolkit-prompt" class="form-input" placeholder="Ask the AI agent..." style="max-width:340px;">
+            <button id="ai-toolkit-submit" class="btn btn-primary">Send</button>
+            <span id="ai-toolkit-response" style="margin-left:16px; color:#888; font-size:0.95em;"></span>
+            <div id="zoom-control" style="position:absolute; right:18px; top:10px; display:flex; align-items:center; gap:4px;">
+                <label for="zoom-range" style="color:#888; font-size:0.95em;">Zoom:</label>
+                <input type="range" id="zoom-range" min="50" max="100" value="100" style="width:70px;">
+                <span id="zoom-value" style="color:#888; font-size:0.95em;">100%</span>
+            </div>
+        </div>
+        <div id="app-container">
+        <!-- Top Controls -->
+        <div id="controls">
+            <div class="api-settings" style="display: flex; flex: 1; gap: 8px; align-items: center;">
+                <select id="api-type" class="form-input" style="max-width: 200px;">
+                    <option value="">Select API Type...</option>
+                    <option value="zoom">Zoom API</option>
+                    <option value="gemini">Google Gemini API</option>
+                    <option value="claude">Claude API</option>
+                </select>
+                <input type="password" id="api-key-input" class="form-input" style="max-width: 200px;" placeholder="Enter API Key...">
+                <button id="save-key-btn" class="btn">Save Key</button>
+                <span id="status-message" style="margin-left: 10px;"></span>
+            </div>
+            
+            <!-- Medical Search Input -->
+            <div class="medical-search-input" style="display: flex; gap: 8px; align-items: center;">
+                <input type="text" id="ai-input" class="form-input" placeholder="Ask about medications or find doctors..." style="width: 300px;">
+                <button id="ai-submit-btn" class="btn">Search</button>
+            </div>
+        </div>
+
+        <!-- Main Split View -->
+        <div id="main-content">
+            <!-- Left Side: Video Conference -->
+            <div id="video-container" style="display: flex; flex-direction: column; height: 100%; overflow-y: auto;">
+                    <div id="zoom-meeting-container" style="flex: 0 1 70%; position: relative;">
+                                                <!-- Zoom Meeting Overlay Controls -->
+                                                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); 
+                                                     padding: 8px; display: flex; gap: 4px; justify-content: center; opacity: 0.9;">
+                                                    <button id="zoom-mute-btn" class="btn" 
+                                                            style="min-width: 40px; height: 40px; padding: 8px; border-radius: 50%; border: none;">
+                                                        🎤
+                                                    </button>
+                                                    <button id="zoom-video-btn" class="btn" 
+                                                            style="min-width: 40px; height: 40px; padding: 8px; border-radius: 50%; border: none;">
+                                                        📹
+                                                    </button>
+                                                    <button id="zoom-share-btn" class="btn" 
+                                                            style="min-width: 40px; height: 40px; padding: 8px; border-radius: 50%; border: none;">
+                                                        🖥️
+                                                    </button>
+                                                    <div style="width: 1px; background: #666; margin: 0 8px;"></div>
+                                                    <button id="zoom-participants-btn" class="btn" 
+                                                            style="min-width: 40px; height: 40px; padding: 8px; border-radius: 50%; border: none;">
+                                                        👥
+                                                    </button>
+                                                    <button id="zoom-chat-btn" class="btn" 
+                                                            style="min-width: 40px; height: 40px; padding: 8px; border-radius: 50%; border: none;">
+                                                        💬
+                                                    </button>
+                                                    <div style="width: 1px; background: #666; margin: 0 8px;"></div>
+                                                    <button id="zoom-end-btn" class="btn" 
+                                                            style="min-width: 40px; height: 40px; padding: 8px; border-radius: 50%; border: none; background: #ff4444 !important;">
+                                                        ❌
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <!-- Contact Integration Under Video -->
+                                            <div style="background:#f0e2dc; border-top:1px solid #d4b5a9; padding: 8px;">
+                                                <!-- Contact Management Section -->
+                                                <div style="margin-top: 8px;">
+                                                    <!-- Contact Selection -->
+                                                    <div style="margin-bottom: 10px;">
+                                                        <select id="contact-list" class="form-input" style="width: calc(100% - 100px); margin-right: 8px;">
+                                                            <option value="">Select contact for meeting...</option>
+                                                        </select>
+                                                        <button id="make-video-call-btn" class="btn btn-primary">🎥 Invite</button>
+                                                    </div>
+                                                    <!-- Collapsible Contact Management -->
+                                                    <div style="border-top: 1px solid #d4b5a9; padding-top: 10px;">
+                                                        <button onclick="toggleContactForm()" class="btn" style="width: 100%; margin-bottom: 8px; font-size: 0.9em;">
+                                                            📋 Manage Contacts
+                                                        </button>
+                                                        <div id="contact-form-container" style="display: none;">
+                                                            <form id="contact-form" autocomplete="off">
+                                                                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                                                    <input type="text" id="contact-name-input" class="form-input" placeholder="Name" required style="flex: 1; font-size: 0.9em;">
+                                                                    <input type="tel" id="contact-phone-input" class="form-input" placeholder="Phone" required style="flex: 1; font-size: 0.9em;">
+                                                                    <input type="email" id="contact-email-input" class="form-input" placeholder="Email" style="flex: 1; font-size: 0.9em;">
+                                                                </div>
+                                                                <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 0.9em;">Add Contact</button>
+                                                            </form>
+                                                            <div id="contacts-list-view" style="max-height: 150px; overflow-y: auto; margin-top: 8px; background: #fff; border-radius: 4px; padding: 8px;">
+                                                                <!-- Contacts will be rendered here -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    </div>
+
+            <!-- Right Side: Medical Records Form -->
+            <div id="medical-form-container">
+                <h2>Medical Records Management</h2>
+                
+                <!-- Personal Information Section -->
+                <div class="form-section">
+                    <h3>Personal Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="patient-name">Full Name</label>
+                            <input type="text" id="patient-name" class="form-input" placeholder="Enter full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="dob">Date of Birth</label>
+                            <input type="date" id="dob" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="medical-id">Medical ID Number</label>
+                            <input type="text" id="medical-id" class="form-input" placeholder="Medical ID">
+                        </div>
+                        <div class="form-group">
+                            <label for="insurance-id">Insurance ID</label>
+                            <input type="text" id="insurance-id" class="form-input" placeholder="Insurance ID">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="form-section">
+                    <h3>Contact Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="phone-primary">Primary Phone</label>
+                            <input type="tel" id="phone-primary" class="form-input" placeholder="Primary phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone-emergency">Emergency Contact</label>
+                            <input type="tel" id="phone-emergency" class="form-input" placeholder="Emergency contact">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" class="form-input" placeholder="Street address">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" class="form-input" placeholder="City">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" class="form-input" placeholder="State">
+                        </div>
+                        <div class="form-group">
+                            <label for="zip">ZIP Code</label>
+                            <input type="text" id="zip" class="form-input" placeholder="ZIP">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medical Providers Section -->
+                <div class="form-section">
+                    <h3>Healthcare Providers</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="primary-doctor">Primary Physician</label>
+                            <select id="primary-doctor" class="form-input">
+                                <option value="">Select primary doctor...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="specialist-type">Specialist Category</label>
+                            <select id="specialist-type" class="form-input">
+                                <option value="">Select category...</option>
+                                <option value="cardiology">Cardiology</option>
+                                <option value="dermatology">Dermatology</option>
+                                <option value="endocrinology">Endocrinology</option>
+                                <option value="neurology">Neurology</option>
+                                <option value="orthopedics">Orthopedics</option>
+                                <option value="psychiatry">Psychiatry</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="specialist-name">Specialist Name</label>
+                            <select id="specialist-name" class="form-input">
+                                <option value="">Select specialist...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <!-- NEW: Diagnosis & Follow-Up Section -->
+                <div class="form-section" id="diagnosis-section">
+                    <h3>Diagnosis & Follow-Up</h3>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="diagnosis-summary">Diagnosis Summary</label>
+                            <textarea id="diagnosis-summary" class="form-input" rows="3" placeholder="Enter the official diagnosis or summary..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="next-test-due">Next Test Due</label>
+                            <input type="date" id="next-test-due" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="test-tracking-number">Test Tracking #</label>
+                            <input type="text" id="test-tracking-number" class="form-input" placeholder="e.g., LabCorp #12345">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Follow-Up Checklist</label>
+                            <div class="checklist">
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="follow-up-schedule">
+                                    <label for="follow-up-schedule">Schedule follow-up appointment</label>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="follow-up-medication">
+                                    <label for="follow-up-medication">Pick up new prescription</label>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="follow-up-diet">
+                                    <label for="follow-up-diet">Adjust diet/lifestyle as recommended</label>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="follow-up-monitor">
+                                    <label for="follow-up-monitor">Monitor symptoms</label>                
+
+                <!-- Test Results Section -->
+                <div class="form-section">
+                    <h3>Medical Tests & Results</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="test-type">Test Category</label>
+                            <select id="test-type" class="form-input">
+                                <option value="">Select test type...</option>
+                                <option value="blood">Blood Work</option>
+                                <option value="imaging">Imaging</option>
+                                <option value="physical">Physical Exam</option>
+                                <option value="specialty">Specialty Tests</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="test-date">Test Date</label>
+                            <input type="date" id="test-date" class="form-input">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="test-results">Test Results</label>
+                            <textarea id="test-results" class="form-input" rows="3" 
+                                    placeholder="Enter test results or upload file"></textarea>
+                        </div>
+                                                    <label for="test-results">
+                                Test Results or 
+                                <a href="https://www.questdiagnostics.com/" id="quest-link" style="font-size: 1.4em;">Quest Diagnostics Portal</a>
+                            </label>
+                        <div class="form-group">
+                            <label for="test-file">Upload Results</label>
+                            <input type="file" id="test-file" class="form-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar & Scheduler -->
+                <div class="form-section" id="calendar-section">
+                    <h3 style="background:none; border:none; box-shadow:none;">Appointments & Schedule</h3>
+                    <form class="scheduler-form" style="background:none; border:none; box-shadow:none; padding-top:0; margin-bottom:0;">
+                        <div style="display:flex; gap:10px; margin-bottom:16px;">
+                            <button id="save-appointment-btn" class="btn btn-primary" type="button">Save Appointment</button>
+                            <button id="save-records-btn" class="btn btn-primary" type="button">Save All Changes</button>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="appointment-date">Date & Time</label>
+                                <input type="datetime-local" id="appointment-date" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="appointment-type">Type</label>
+                                <select id="appointment-type" class="form-input">
+                                    <option value="">Select type...</option>
+                                    <option value="checkup">Regular Checkup</option>
+                                    <option value="followup">Follow-up</option>
+                                    <option value="specialist">Specialist Visit</option>
+                                    <option value="lab">Lab Work</option>
+                                    <option value="imaging">Imaging</option>
+                                    <option value="therapy">Therapy</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="appointment-provider">Provider</label>
+                                <select id="appointment-provider" class="form-input">
+                                    <option value="">Select provider...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="appointment-copay">Co-Pay</label>
+                                <input type="number" id="appointment-copay" class="form-input" placeholder="$0.00" min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="appointment-bill">Bill</label>
+                                <input type="number" id="appointment-bill" class="form-input" placeholder="$0.00" min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="appointment-out-of-pocket">Out-of-Pocket</label>
+                                <input type="number" id="appointment-out-of-pocket" class="form-input" placeholder="$0.00" min="0" step="0.01">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="appointment-notes">Notes</label>
+                                <textarea id="appointment-notes" class="form-input" rows="2" 
+                                        placeholder="Additional notes for the appointment"></textarea>
+                            </div>
+                        </div>
+                        <button id="schedule-btn" class="btn" type="button">Schedule Appointment</button>
+                    </form>
+                    <div class="calendar-container" style="background:none; border:none; box-shadow:none; margin-top:0;">
+                        <!-- Calendar will be rendered here -->
+                        <div id="calendar-view"></div>
+                    </div>
+                </div>
+
+                <!-- Save Changes -->
+                <!-- Save Changes button removed as requested -->
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Bottom AI Assistant removed as requested -->
+    </div>
+        <!-- Development mode import -->
+        <script type="module" src="./src/renderer.js"></script>
+        
+        <!-- Production mode fallback -->
+        <script>
+            // Add a fallback script loader for production
+            document.addEventListener('DOMContentLoaded', function() {
+                // Check if the module script failed to load
+                setTimeout(function() {
+                    // If no app container exists yet, try to load the script directly
+                    if (!document.getElementById('app-container') || 
+                        document.getElementById('app-container').children.length === 0) {
+                        console.log('Module script may have failed, trying direct script');
+                        var script = document.createElement('script');
+                        script.src = './src/renderer.js';
+                        script.type = 'text/javascript';
+                        document.head.appendChild(script);
+                        
+                        // Also try additional paths
+                        ['./dist/assets/index.js', './assets/index.js'].forEach(function(path) {
+                            var altScript = document.createElement('script');
+                            altScript.src = path;
+                            altScript.type = 'text/javascript';
+                            document.head.appendChild(altScript);
+                            console.log('Trying alternative script path:', path);
+                        });
+                    }
+                }, 500); // Give the module script some time to load
+            });
+            
+        // Medical search functionality is handled in renderer.js
+
+        // Zoom control logic
+        const zoomRange = document.getElementById('zoom-range');
+        const zoomValue = document.getElementById('zoom-value');
+        if (zoomRange && zoomValue) {
+            zoomRange.addEventListener('input', function() {
+                const percent = zoomRange.value;
+                document.documentElement.style.fontSize = (percent/100) + 'em';
+                zoomValue.textContent = percent + '%';
+                localStorage.setItem('medmgr-zoom', percent);
+            });
+            // Restore zoom from localStorage
+            const saved = localStorage.getItem('medmgr-zoom');
+            if (saved) {
+                zoomRange.value = saved;
+                document.documentElement.style.fontSize = (saved/100) + 'em';
+                zoomValue.textContent = saved + '%';
+            }
+        }
+        </script>
+            <script>
+            // Contact form logic with contact app integration
+            const contactForm = document.getElementById('contact-form');
+            const contactList = document.getElementById('contact-list');
+            const contactName = document.getElementById('contact-name');
+            const contactPhone = document.getElementById('contact-phone');
+            const contactEmail = document.getElementById('contact-email');
+            let contacts = [];
+
+            // Initialize contact system
+            window.addEventListener('DOMContentLoaded', () => {
+                loadContacts(); // Load contacts when the app starts
+                
+                // Handle contact selection
+                contactList.addEventListener('change', (e) => {
+                    const selectedContact = contacts.find(c => c.phone === e.target.value);
+                    if (selectedContact) {
+                        contactName.value = selectedContact.name;
+                        contactPhone.value = selectedContact.phone;
+                        contactEmail.value = selectedContact.email || '';
+                    }
+                });
+
+                // Handle phone calls
+                const makeCallBtn = document.getElementById('make-call-btn');
+                makeCallBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const selectedPhone = contactList.value;
+                    if (selectedPhone) {
+                        try {
+                            await window.electronAPI.makePhoneCall(selectedPhone);
+                        } catch (error) {
+                            console.error('Failed to initiate call:', error);
+                        }
+                    } else {
+                        alert('Please select a contact first');
+                    }
+                });
+
+                // Handle video calls
+                const makeVideoCallBtn = document.getElementById('make-video-call-btn');
+                makeVideoCallBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const selectedContact = contacts.find(c => c.phone === contactList.value);
+                    if (selectedContact) {
+                        // Use the existing Zoom meeting functionality
+                        const meetingBtn = document.getElementById('start-meeting-btn');
+                        if (meetingBtn) {
+                            meetingBtn.click();
+                        }
+                    } else {
+                        alert('Please select a contact first');
+                    }
+                });
+            });
+
+            // Load contacts from the system
+            async function loadContacts() {
+                try {
+                    contacts = await window.electronAPI.getContacts();
+                    console.log('Loaded contacts:', contacts); // Debug log
+                    if (contactList) {
+                        contactList.innerHTML = '<option value="">Select a contact...</option>';
+                        if (contacts && contacts.length > 0) {
+                            contacts.forEach(contact => {
+                                const option = document.createElement('option');
+                                option.value = contact.phone;
+                                option.textContent = `${contact.name}: ${contact.phone}`;
+                                contactList.appendChild(option);
+                            });
+                        } else {
+                            // Add a sample contact if none exist
+                            const sampleContact = {
+                                name: 'Sample Contact',
+                                phone: '123-456-7890',
+                                email: 'sample@example.com'
+                            };
+                            await window.electronAPI.addContact(sampleContact);
+                            const option = document.createElement('option');
+                            option.value = sampleContact.phone;
+                            option.textContent = `${sampleContact.name}: ${sampleContact.phone}`;
+                            contactList.appendChild(option);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading contacts:', error);
+                }
+            }
+
+            // Function to add a contact
+            async function addContactToApp(contact) {
+                try {
+                    await window.electronAPI.addContact(contact);
+                    await loadContacts(); // Refresh the contact list
+                    console.log('Contact added successfully:', contact);
+                } catch (error) {
+                    console.error('Error adding contact:', error);
+                }
+            }
+
+            // Handle form submission
+            contactForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const contact = {
+                    name: contactName.value,
+                    phone: contactPhone.value,
+                    email: contactEmail.value
+                };
+                try {
+                    await addContactToApp(contact);
+                    contactForm.reset();
+                    console.log('Contact added successfully:', contact);
+                    // Reload the contacts list to show the new contact
+                    await loadContacts();
+                } catch (error) {
+                    console.error('Error adding contact:', error);
+                    alert('Failed to add contact. Check the console for details.');
+                }
+            });
+            if (contactForm) {
+                contactForm.onsubmit = function(e) {
+                    e.preventDefault();
+                    const name = document.getElementById('contact-name').value.trim();
+                    const phone = document.getElementById('contact-phone').value.trim();
+                    const email = document.getElementById('contact-email').value.trim();
+                    if (!name || !phone) return;
+                    const contact = { name, phone, email };
+                    contacts.push(contact);
+                    addContactToApp(contact);
+                    renderContacts();
+                    contactForm.reset();
+                };
+            }
+            function renderContacts() {
+                if (!contactList) return;
+                if (contacts.length === 0) { contactList.innerHTML = '<em>No contacts added.</em>'; return; }
+                contactList.innerHTML = '<ul style="padding-left:18px;">' + contacts.map((c,i) => `<li><b>${c.name}</b> - ${c.phone}${c.email ? ' - ' + c.email : ''}</li>`).join('') + '</ul>';
+            }
+            renderContacts();
+
+            // Expose contacts to AI agent (window for demo, real integration would use a function)
+            window.getContactListForAI = function() { return contacts; };
+            </script>
+        <script>
+        // Simple AI Toolkit prompt box logic
+        document.getElementById('ai-toolkit-submit').onclick = async function() {
+            const prompt = document.getElementById('ai-toolkit-prompt').value.trim();
+            const respSpan = document.getElementById('ai-toolkit-response');
+            if (!prompt) { respSpan.textContent = 'Please enter a prompt.'; return; }
+            respSpan.textContent = 'Thinking...';
+            // Simulate AI response (replace with real API call if available)
+            setTimeout(() => {
+                respSpan.textContent = 'AI says: "' + prompt.replace(/([.?!])\s*$/, '$1') + ' (response)"';
+            }, 900);
+        };      
+        
+        </script>
+        <script>
+        // Custom context menu for copy/paste on all text inputs and textareas
+        document.addEventListener('DOMContentLoaded', function() {
+            function showMenu(e, el) {
+                e.preventDefault();
+                // Remove any existing menu
+                let oldMenu = document.getElementById('custom-context-menu');
+                if (oldMenu) oldMenu.remove();
+                // Create menu
+                let menu = document.createElement('div');
+                menu.id = 'custom-context-menu';
+                menu.style.position = 'fixed';
+                menu.style.left = e.clientX + 'px';
+                menu.style.top = e.clientY + 'px';
+                menu.style.background = '#222';
+                menu.style.color = '#fff';
+                menu.style.border = '1px solid #555';
+                menu.style.padding = '4px 0';
+                menu.style.zIndex = 9999;
+                menu.style.fontSize = '0.9em';
+                menu.style.borderRadius = '4px';
+                menu.style.minWidth = '90px';
+                // Copy
+                let copy = document.createElement('div');
+                copy.textContent = 'Copy';
+                copy.style.padding = '4px 16px';
+                copy.style.cursor = 'pointer';
+                copy.onmouseenter = () => copy.style.background = '#444';
+                copy.onmouseleave = () => copy.style.background = '';
+                copy.onclick = function() {
+                    el.select();
+                    document.execCommand('copy');
+                    menu.remove();
+                };
+                // Paste
+                let paste = document.createElement('div');
+                paste.textContent = 'Paste';
+                paste.style.padding = '4px 16px';
+                paste.style.cursor = 'pointer';
+                paste.onmouseenter = () => paste.style.background = '#444';
+                paste.onmouseleave = () => paste.style.background = '';
+                paste.onclick = async function() {
+                    if (navigator.clipboard) {
+                        const text = await navigator.clipboard.readText();
+                        el.setRangeText(text, el.selectionStart, el.selectionEnd, 'end');
+                    }
+                    menu.remove();
+                };
+                menu.appendChild(copy);
+                menu.appendChild(paste);
+                document.body.appendChild(menu);
+                // Remove menu on click elsewhere
+                document.addEventListener('mousedown', function handler() {
+                    menu.remove();
+                    document.removeEventListener('mousedown', handler);
+                });
+            }
+            document.querySelectorAll('input[type="text"], input[type="password"], input[type="tel"], input[type="date"], input[type="datetime-local"], textarea').forEach(el => {
+                el.addEventListener('contextmenu', function(e) { showMenu(e, el); });
+            });
+        });
+        </script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: sans-serif; background-color: #1e1e1e; color: white; font-size: 1.013em;}
+    html { transition: font-size 0.2s; }
+        #app-container { display: flex; flex-direction: column; height: 100vh; }
+        #controls { 
+            padding: 11.058px; 
+            background: #252526; 
+            border-bottom: 1px solid #333; 
+            display: flex; 
+            gap: 11.058px; 
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    .form-input { flex-grow: 1; padding: 9.215px; background-color: #3c3c3c; border: 1px solid #555; color: white; border-radius: 4.6075px; font-size: 1.013em; }
+        .btn { 
+            padding: 7.372px 14.744px; 
+            border: 1px solid #555; 
+            background-color: #3c3c3c; 
+            color: white; 
+            cursor: pointer; 
+            position: relative; /* Needed for the pseudo-element */
+            overflow: hidden;   /* Keep the progress bar contained */
+            transition: background-color 0.3s;
+            font-size: 1.013em;
+            border-radius: 4.6075px;
+        }
+        .btn:hover { background-color: #555; }
+        .btn:disabled {
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        /* Form Styling */
+        .form-section {
+            margin-bottom: 25.802px;
+            padding: 16.587px;
+            background: #2d2d2d;
+            border-radius: 8.2935px;
+            box-shadow: 0 1.843px 4.6075px rgba(0,0,0,0.18);
+        }
+
+        .form-section h3 {
+            margin: 0 0 16.587px 0;
+            color: #fff;
+            border-bottom: 1px solid #555;
+            padding-bottom: 8.2935px;
+            font-size: 1.1058em;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16.587px;
+        }
+
+        .form-group {
+            margin-bottom: 16.587px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5.529px;
+            color: #ddd;
+            font-size: 0.921em;
+        }
+
+        /* Medical Records Form Container */
+        #medical-form-container { 
+            flex: 1; 
+            padding: 22.116px;
+            overflow-y: auto;
+            max-height: calc(100vh - 120px);
+            margin-bottom: 20px;
+            padding-bottom: 100px;
+        }
+
+        /* Calendar Section */
+        .calendar-container {
+            margin: 16.587px 0;
+            padding: 16.587px;
+            background: #252525;
+            border-radius: 4.6075px;
+            min-height: 304.095px;
+        }
+
+        .scheduler-form {
+            margin-top: 16.587px;
+            padding: 16.587px;
+            background: #252525;
+            border-radius: 4.6075px;
+        }
+
+        /* Enhanced Buttons */
+        .btn-primary {
+            background-color: #007acc;
+            border-color: #006bb3;
+        }
+
+        .btn-primary:hover {
+            background-color: #006bb3;
+        }
+
+        /* Form Controls Enhancement */
+        .form-input {
+            width: 100%;
+            padding: 9.215px;
+            background-color: #3c3c3c;
+            border: 1px solid #555;
+            color: white;
+            border-radius: 4.6075px;
+            font-size: 1.013em;
+            overflow-x: auto;
+        }
+
+        select.form-input {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 9.215px center;
+            background-size: 1.013em;
+            padding-right: 29.488px;
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 60.819px;
+            overflow-y: auto;
+        }
+
+        input[type="file"].form-input {
+            padding: 7.372px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        #ai-assistant-container {
+            padding: 16.587px;
+            background: #252526;
+            border-top: 1px solid #333;
+        }
+
+        #ai-prompt-area {
+            display: flex;
+            gap: 11.058px;
+            margin-top: 11.058px;
+        }
+
+        #ai-input {
+            flex-grow: 1;
+            padding: 9.215px;
+            background-color: #3c3c3c;
+            border: 1px solid #555;
+            color: white;
+            border-radius: 4.6075px;
+            font-size: 1.013em;
+        }
+
+        #zoom-meeting-container {
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0;
+            background-color: #007acc;
+            transition: width 0.3s ease-out, background-color 0.3s;
+        }
+        .btn.loading::before {
+            width: 95%;
+            transition: width 15s ease-in;
+        }
+        .btn.success::before {
+            width: 100%;
+            background-color: #28a745;
+        }
+        .btn > span {
+            position: relative;
+        }
+    #status-message { margin-left: auto; font-style: italic; color: #888; }
+    #main-content { display: flex; flex: 1; }
+    #video-container { flex: 1; border-right: 1px solid #333; background-color: black;}
+    #editor-container { flex: 1; }
+        /* Center API key box, menu, and button in one line at the top */
+        #controls .api-settings {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 auto;
+        }
+        #controls .api-settings select,
+        #controls .api-settings input,
+        #controls .api-settings button {
+            width: auto;
+            min-width: 120px;
+            margin: 0;
+        }
